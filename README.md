@@ -4,7 +4,12 @@
   	Zhoucheng Li
   	Handi Xu
   	Long He
-  	
+
+## Dependency
+```
+// export GOROOT and GOPATH first
+go get github.com/gocql/gocql
+```  	
   	
 ## Usage Instruction:
 ###### On BIC Cluster
