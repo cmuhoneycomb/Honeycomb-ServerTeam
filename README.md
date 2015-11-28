@@ -7,7 +7,7 @@
   	
   	
 ## Usage Instruction:
-#### On BIC Cluster
+###### On BIC Cluster
 ```
 CREATE KEYSPACE Honey
   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
