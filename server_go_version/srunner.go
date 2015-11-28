@@ -60,10 +60,9 @@ func runSparkJob(w http.ResponseWriter, r *http.Request) {
 	go func(id int) {
 		output, err := exec.Command("python", "test.py").Output()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(err) // caution: log.Fatal may terminate the program
 		} else {
 			log.Println(string(output))
-			// in future, change it to
 			client.Insert(id, string(output))
 		}
 	}(id)
