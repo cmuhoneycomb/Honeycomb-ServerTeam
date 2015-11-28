@@ -1,4 +1,6 @@
 # Honeycomb-ServerTeam
+We have 3 versions of servers, using Java, Go and Python respectively.
+
 ## Team member:
   	Ningna Wang
   	Zhoucheng Li
