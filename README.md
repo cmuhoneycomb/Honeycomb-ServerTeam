@@ -1,5 +1,5 @@
 # Honeycomb-ServerTeam
-The readme of Python version is inside Python_Server_Version directory
+The readme of Python version is inside server_python_version directory
 
 ## Team member:
   	Ningna Wang
