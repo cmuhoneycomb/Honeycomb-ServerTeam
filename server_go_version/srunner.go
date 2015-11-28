@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -23,7 +24,7 @@ const (
 
 var (
 	port   = flag.String("port", defaultHostPort, "port number to listen on")
-	client CassandraClient
+	client *CassandraClient
 )
 
 func init() {
@@ -37,48 +38,72 @@ func runSparkJob(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Wrong id!\n"))
 		return
 	}
+	// test database insert
 	client.Insert(id, "/home/a/b/trainingdata;/home/testingdata")
-	storedPaths := client.Get(id)
+	// test database lookup
+	storedPaths, err := client.Get(id)
+	if err != nil {
+		w.Write([]byte("Job id does not exist!\n"))
+		return
+	}
 	paths := strings.Split(storedPaths, ";") // split by ";"
 	if len(paths) != 2 {                     // check paths
-		log.Fatal("Paths in database is worng: " + storedPaths)
+		log.Println("Paths in database is worng: " + storedPaths)
+		w.Write([]byte("Paths in database is worng: " + storedPaths))
 		return
 	}
 	w.Write([]byte("Job ID:" + jobId + "\n"))
 	w.Write([]byte("Training Data: " + paths[0] + "\n"))
 	w.Write([]byte("Testing Data:" + paths[1] + "\n"))
+
+	// call external python script
+	go func(id int) {
+		output, err := exec.Command("python", "test.py").Output()
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			log.Println(string(output))
+			// in future, change it to
+			client.Insert(id, string(output))
+		}
+	}(id)
 }
 
-func NewCassandraClient(CassandraHostPort string) CassandraClient {
+func NewCassandraClient(CassandraHostPort string) (*CassandraClient, error) {
 	cluster := gocql.NewCluster(CassandraHostPort)
 	cluster.Keyspace = "honey"
 	cluster.Consistency = gocql.Quorum
-	session, _ := cluster.CreateSession()
-	c := CassandraClient{
+	session, err := cluster.CreateSession()
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	c := &CassandraClient{
 		session: session,
 	}
-	return c
+	return c, nil
 }
 
 func (c *CassandraClient) Close() {
 	c.session.Close()
 }
 
-func (c *CassandraClient) Get(id int) string {
+func (c *CassandraClient) Get(id int) (string, error) {
 	var path string
 
 	if err := c.session.Query(`SELECT id, path FROM data WHERE id = ?`,
 		id).Consistency(gocql.One).Scan(&id, &path); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return "", err
 	}
 	fmt.Println("Result:", id, path)
-	return path
+	return path, nil
 }
 
 func (c *CassandraClient) Insert(id int, path string) {
-	if err := c.session.Query(`INSERT INTO data (id, path) VALUES (?, ?)`,
+	if err := c.session.Query(`INSERT INTO result (id, path) VALUES (?, ?)`,
 		id, path).Exec(); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
@@ -92,7 +117,12 @@ func main() {
 	// sample request: curl localhost:32768/?id=2
 	http.HandleFunc("/", runSparkJob)
 
-	client = NewCassandraClient(CassandraHostPort)
+	var err error
+	client, err = NewCassandraClient(CassandraHostPort)
+	if err != nil {
+		log.Fatal("failed to create Cassandra Client")
+		return
+	}
 	defer client.Close()
 
 	log.Fatal(http.ListenAndServe(hostPort, nil))
