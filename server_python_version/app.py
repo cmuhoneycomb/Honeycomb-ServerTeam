@@ -1,5 +1,6 @@
-
 from flask import Flask
+from fetch import fetch
+from settings import PORT
 
 app = Flask(__name__)
 
@@ -11,9 +12,8 @@ def test():
 def hornet(id):
     data = fetch(str(id))
     #result = compute(data)
-    
+
     return str(data) + '\n'
-    return data
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=32769, debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=True)

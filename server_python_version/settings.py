@@ -1,0 +1,4 @@
+DB_URI = '127.0.0.1:9160'
+KEY_SPACE = 'Keyspace1'
+COLUMN_FAMILY = 'ColumnFamily1'
+PORT = 32769
