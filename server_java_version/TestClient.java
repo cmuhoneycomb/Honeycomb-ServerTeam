@@ -35,9 +35,13 @@ public class TestClient {
 	BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in)); // read from command line
 	String userInput;
 
+    System.out.println ("Type Message (\"exit\" to quit)");
     System.out.print ("Please type in your input: ");
 	while ((userInput = stdIn.readLine()) != null) {
 	    out.println(userInput);
+        // end loop
+        if (userInput.equals("Bye."))
+            break;
 	    System.out.println("Honeycomb Server response: " + in.readLine());
         System.out.print ("input: ");
 	}
