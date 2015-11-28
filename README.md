@@ -1,5 +1,5 @@
 # Honeycomb-ServerTeam
-We have 3 versions of servers, using Java, Go and Python respectively.
+The readme of Python version is inside Python_Server_Version directory
 
 ## Team member:
   	Ningna Wang
