@@ -7,6 +7,26 @@
   	
   	
 ## Usage Instruction:
+#### On BIC Cluster
+CREATE KEYSPACE Honey
+  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+CREATE TABLE honey.data (
+  id int PRIMARY KEY,
+  path varchar
+);
+
+CREATE TABLE honey.result (
+  id int PRIMARY KEY,
+  path varchar
+);
+
+
+#### Go Version
+export GOROOT=/home/honeycomb/Go/go
+export GOPATH=/home/honeycomb/HoneyBuzzard/src/honeycomb
+go build srunner
+./srunner &
 
 #### On terminal:
 - javac HoneycombServer.java
