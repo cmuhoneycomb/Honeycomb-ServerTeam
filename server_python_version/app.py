@@ -1,12 +1,21 @@
 from flask import Flask
 from fetch import fetch
 from settings import PORT
+from subprocess import call
 
 app = Flask(__name__)
 
-@app.route('/test')
-def test():
-    return 'ok!\n'
+FILE_PATH = '/home/honeycomb/SparkTeam/part-00000'
+
+@app.route('/result')
+def result():
+    return FILE_PATH
+
+@app.route('/run')
+def run():
+    call(['/bin/spark-submit', '/home/honeycomb/SparkTeam/PySpark.py', '/user/honeycomb/sparkteam/input/sample_multiclass_classification_data.txt', '/user/honeycomb/sparkteam/input/sample_multiclass_classification_data_test.txt', '/home/honeycomb/SparkTeam'])
+    with open(FILE_PATH) as fin:
+        return fin.read()
 
 @app.route('/id/<id>')
 def hornet(id):
