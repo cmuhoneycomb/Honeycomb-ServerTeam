@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -39,7 +40,7 @@ func runSparkJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// test database insert
-	client.Insert(id, "/home/a/b/trainingdata;/home/testingdata")
+	// client.Insert(id, "/home/a/b/trainingdata;/home/testingdata")
 	// test database lookup
 	storedPaths, err := client.Get(id)
 	if err != nil {
@@ -58,15 +59,31 @@ func runSparkJob(w http.ResponseWriter, r *http.Request) {
 
 	// call external python script
 	go func(id int) {
-		outFile := "/home/honeycomb/HoneyBuzzard/output/result_" + jobId + ".json"
-		output, err := exec.Command("python", "/home/honeycomb/SparkTeam/PySpark.py",
-			paths[0], paths[1], outFile).Output()
+		//outFile := "/home/honeycomb/HoneyBuzzard/output/result_" + jobId + ".json"
+		outDir := "/home/honeycomb/HoneyBuzzard/output"
+		//output,err := exec.Command("/bin/spark-submit", "/home/honeycomb/SparkTeam/PySpark.py",
+		//	paths[0], paths[1], outDir).Output()
+		log.Println("testing data: " + paths[0])
+		log.Println("training data:" + paths[1])
+		log.Println("out dir: " + outDir)
+		err := exec.Command("/bin/spark-submit", "/home/honeycomb/SparkTeam/PySpark.py",
+			paths[0], paths[1], outDir).Run()
 		if err != nil {
-			log.Fatal(err) // caution: log.Fatal may terminate the program
-		} else {
-			log.Println(string(output))
-			client.Insert(id, outFile)
+			log.Println(err)
 		}
+		//if err != nil {
+		//	log.Fatal(err) // caution: log.Fatal may terminate the program
+		//} else {
+		//log.Println(string(output))
+		filePath := outDir + "/result_" + jobId
+		log.Println(filePath)
+		err = os.Rename(outDir+"/part-00000", filePath)
+		if err != nil {
+			log.Println("file does not exist")
+			return
+		}
+		client.Insert(id, filePath)
+		//}
 	}(id)
 }
 
