@@ -34,8 +34,8 @@ CREATE TABLE honey.result (
 ###### Inside source directory
 ```
 export GOROOT=/home/honeycomb/Go/go
-export GOPATH=/home/honeycomb/HoneyBuzzard/src/honeycomb
-go build srunner
+export GOPATH=/home/honeycomb/HoneyBuzzard
+go build srunner.go
 ./srunner &
 ```
 ## Usage Instruction [Java]:
