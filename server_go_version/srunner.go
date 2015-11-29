@@ -58,7 +58,7 @@ func runSparkJob(w http.ResponseWriter, r *http.Request) {
 
 	// call external python script
 	go func(id int) {
-		outFile = "/home/honeycomb/HoneyBuzzard/output/result_" + jobId + ".json"
+		outFile := "/home/honeycomb/HoneyBuzzard/output/result_" + jobId + ".json"
 		output, err := exec.Command("python", "/home/honeycomb/SparkTeam/PySpark.py",
 			paths[0], paths[1], outFile).Output()
 		if err != nil {
